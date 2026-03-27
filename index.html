@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KYC Tool - Final Version</title>
+    <title>KYC Tool - Full Suite</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; overflow: hidden; }
         .navbar { background: #000; color: #fff; padding: 15px 25px; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -21,7 +21,7 @@
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.75em; color: #555; text-transform: uppercase; }
         
         .multi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-        .choice-row { display: flex; gap: 4px; }
+        .choice-row { display: flex; gap: 4px; flex-wrap: wrap; }
         button { background: #eee; border: 1px solid #ddd; padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.75em; text-transform: uppercase; }
         button.active { background: #007bff; color: #fff; border-color: #0056b3; }
 
@@ -42,6 +42,7 @@
     <span onclick="load('biv', this)">BIV</span>
     <span onclick="load('bov', this)">BOV</span>
     <span onclick="load('bav ramp', this)">BAV RAMP</span>
+    <span onclick="load('lrv', this)">LRV</span>
 </div>
 
 <div class="container">
@@ -150,9 +151,13 @@ function load(type, el) {
         <div class='field'><label>MO:</label><input oninput="state['mo']=this.value"></div>
         <div class='field'><label>Is it a EU based seller with 3rd party payment provider?:</label><div class='choice-row'><button onclick="setVal('eu_provider','Y',this)">Y</button><button onclick="setVal('eu_provider','N',this)">N</button></div></div>
         <div class='field'><label>If yes, are there any other red flags on the account?:</label><input oninput="state['red_flags']=this.value"></div>`;
+    } else if(type === 'lrv') {
+        f += getCommons(false) + `
+        <div class='field'><label>Legal representative verification status:</label><input oninput="state['lrv_status']=this.value"></div>
+        <div class='field'><label>LRV URN:</label><input oninput="state['lrv_urn']=this.value"></div>`;
     }
 
-    f += `<div class="action-section"><label><strong>Final Action:</strong></label><div class='choice-row' style="margin-bottom:8px;"><button onclick="setVal('action','Verify',this)">Verify</button><button onclick="setVal('action','RFD',this)">RFD</button><button onclick="setVal('action','Fail',this)">Fail</button></div><input id="action_input" placeholder="Enter details..." oninput="state['action_details']=this.value"></div>`;
+    f += `<div class="action-section"><label><strong>Final Action:</strong></label><div class='choice-row' style="margin-bottom:8px;"><button onclick="setVal('action','Verify',this)">Verify</button><button onclick="setVal('action','RFD',this)">RFD</button><button onclick="setVal('action','Fail',this)">Fail</button><button onclick="setVal('action','Transfer',this)">Transfer</button><button onclick="setVal('action','Escalate',this)">Escalate</button></div><input id="action_input" placeholder="Enter details..." oninput="state['action_details']=this.value"></div>`;
     document.getElementById('form').innerHTML = f;
 }
 
@@ -172,6 +177,8 @@ function generate() {
         o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong><br>`;
     } else if(current === 'bav ramp') {
         o = `<strong> KYC LR- BAV RAMP </strong> <br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong> <br>`;
+    } else if(current === 'lrv') {
+        o = `<strong>KYC LR- LRV </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification status: ${state.lrv_status || ''}<br>\nLRV URN: ${state.lrv_urn || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
     }
     
     document.getElementById('output').value = o;
