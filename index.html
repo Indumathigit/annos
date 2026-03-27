@@ -73,25 +73,17 @@
             gap: 10px;
         }
 
-        .output-box {
+        textarea {
             flex-grow: 1;
-            padding: 18px;
+            padding: 15px;
             border-radius: 10px;
             border: 1px solid #ccc;
             font-family: 'Courier New', monospace;
+            resize: none;
             background: #fff;
             font-size: 13px;
             color: #1a1a1a;
-            line-height: 1.7;
-            overflow-y: auto;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-            user-select: text;
-        }
-        .output-box .placeholder-text {
-            color: #aaa;
-            font-style: italic;
-            text-align: center;
-            padding-top: 40px;
+            line-height: 1.6;
         }
 
         .field {
@@ -139,9 +131,7 @@
             text-transform: uppercase;
             transition: all 0.15s ease;
         }
-        button:hover {
-            background: #e0e0e0;
-        }
+        button:hover { background: #e0e0e0; }
         button.active {
             background: #007bff;
             color: #fff;
@@ -174,11 +164,8 @@
         .primary-btn:hover {
             background: linear-gradient(135deg, #34c759, #28a745);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(40,167,69,0.4);
         }
-        .primary-btn.flash {
-            animation: flashGreen 0.5s ease;
-        }
+        .primary-btn.flash { animation: flashGreen 0.5s ease; }
 
         .copy-btn {
             background: linear-gradient(135deg, #6c2bd9, #5a23b5);
@@ -227,7 +214,6 @@
             cursor: pointer;
             text-decoration: underline;
             font-weight: bold;
-            transition: opacity 0.2s;
         }
         .reset-link:hover { opacity: 0.7; }
         .clear-btn {
@@ -248,21 +234,12 @@
             padding: 12px;
             margin-top: 4px;
         }
-        .lrv-composite .sub-field {
-            margin-bottom: 8px;
-        }
-        .lrv-composite .sub-field:last-child {
-            margin-bottom: 0;
-        }
-        .lrv-composite label {
-            font-size: 0.7em;
-            color: #666;
-        }
+        .lrv-composite .sub-field { margin-bottom: 8px; }
+        .lrv-composite .sub-field:last-child { margin-bottom: 0; }
+        .lrv-composite label { font-size: 0.7em; color: #666; }
 
-        .form-box::-webkit-scrollbar,
-        .output-box::-webkit-scrollbar { width: 6px; }
-        .form-box::-webkit-scrollbar-thumb,
-        .output-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .form-box::-webkit-scrollbar { width: 6px; }
+        .form-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
         @keyframes flashGreen {
             0% { box-shadow: 0 0 0 0 rgba(40,167,69,0.6); }
@@ -293,9 +270,7 @@
         <button class="primary-btn" id="genBtn" style="display:none;" onclick="generate()">⚡ Generate Note</button>
     </div>
     <div class="right-panel">
-        <div id="output" class="output-box">
-            <div class="placeholder-text">Your generated note will appear here...</div>
-        </div>
+        <textarea id="output" readonly placeholder="Your generated note will appear here..."></textarea>
         <button id="copyBtn" class="copy-btn" onclick="copyOutput()">📋 Copy to Clipboard</button>
     </div>
 </div>
@@ -327,9 +302,7 @@ function toggleMulti(key, val, el) {
 function clearMulti(key) {
     state[key] = [];
     const container = document.querySelector(`[data-group="${key}"]`);
-    if (container) {
-        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    }
+    if (container) container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
 }
 
 function load(type, el) {
@@ -338,9 +311,7 @@ function load(type, el) {
 
     document.querySelectorAll('.navbar span').forEach(s => {
         s.classList.remove('active-tab');
-        if (s.textContent.trim().toLowerCase() === type.toLowerCase()) {
-            s.classList.add('active-tab');
-        }
+        if (s.textContent.trim().toLowerCase() === type.toLowerCase()) s.classList.add('active-tab');
     });
     if (el) {
         document.querySelectorAll('.navbar span').forEach(s => s.classList.remove('active-tab'));
@@ -348,7 +319,7 @@ function load(type, el) {
     }
 
     document.getElementById('genBtn').style.display = 'block';
-    document.getElementById('output').innerHTML = '<div class="placeholder-text">Your generated note will appear here...</div>';
+    document.getElementById('output').value = '';
 
     const deltaOptions = [
         ...Array.from({length: 21}, (_, i) => `Delta ${i + 1}`),
@@ -605,7 +576,6 @@ function load(type, el) {
             </select></div>`;
     }
 
-    // Action / Outcome section
     if (type === 'lrv') {
         f += `<div class="action-section">
             <label><strong>Outcome:</strong></label>
@@ -636,131 +606,37 @@ function load(type, el) {
 }
 
 function generate() {
-    let deltaStr = (state.delta || []).join(', ') || '';
-    let infoStr = (state.info || []).join(', ') || '';
+    let deltaStr = (state.delta || []).join(', ');
+    let infoStr = (state.info || []).join(', ');
     let actionFinal = (state.action || '') + (state.action_details ? ' - ' + state.action_details : '');
-    let lines = [];
+    let o = "";
 
     if (current === 'loa') {
-        lines = [
-            {bold: true, text: 'KYC LR- LOA'},
-            {label: 'disb. status check', val: state.disb},
-            {label: 'Clover Flags (if applicable)', val: state.clover},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'COC WF - Delta code', val: deltaStr},
-            {label: 'COC WF - what info changed', val: infoStr},
-            {label: 'COC WF - bank account belongs to registered person or business ?', val: state.bank},
-            {label: 'Legal representative verification (if no LRV task)', val: state.lrv_check},
-            {label: 'LOA URN', val: state.loa_urn},
-            {label: 'LOA signatory registration status (APA accounts only)', val: state.apa_status},
-            {bold: true, text: `Action: ${actionFinal}`}
-        ];
+        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN: ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
     } else if (current === 'idv') {
-        lines = [
-            {bold: true, text: 'KYC LR- IDV'},
-            {label: 'Does FDD apply?', val: state.fdd},
-            {label: 'disb. status check', val: state.disb},
-            {label: 'Clover Flags (if applicable)', val: state.clover},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'COC WF - Delta code', val: deltaStr},
-            {label: 'COC WF - what info changed', val: infoStr},
-            {label: 'COC WF - bank account belongs to registered person or business ?', val: state.bank},
-            {label: 'POC legal representative check(if no LRV task)', val: state.poc},
-            {label: 'ID URN', val: state.id_urn},
-            {label: 'POA URN', val: state.poa_urn},
-            {bold: true, text: `Strategic or Trusted?: ${state.tier || ''}`},
-            {label: 'suspicious doc check (if found any)', val: state.susp_check},
-            {bold: true, text: `Action: ${actionFinal}`}
-        ];
+        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
     } else if (current === 'biv') {
-        lines = [
-            {bold: true, text: 'KYC LR- BIV'},
-            {label: 'Does FDD apply?', val: state.fdd},
-            {label: 'disb. status check', val: state.disb},
-            {label: 'Clover Flags (if applicable)', val: state.clover},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'COC WF - Delta code', val: deltaStr},
-            {label: 'COC WF - what info changed', val: infoStr},
-            {label: 'COC WF - bank account belongs to registered person or business ?', val: state.bank},
-            {label: 'POC legal representative check(if no LRV task)', val: state.poc},
-            {label: 'RE URN', val: state.re_urn},
-            {label: 'External Research URN (if needed)', val: state.ext_urn},
-            {label: 'Current business status', val: state.biz_status},
-            {label: 'Is COI same as Country of Biz address?', val: state.coi_match},
-            {bold: true, text: `Strategic or Trusted?: ${state.tier || ''}`},
-            {bold: true, text: `Action: ${actionFinal}`}
-        ];
+        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
+
     } else if (current === 'bov') {
-        lines = [
-            {bold: true, text: 'KYC LR- BOV'},
-            {label: 'Does FDD apply?', val: state.fdd},
-            {label: 'disb. status check', val: state.disb},
-            {label: 'Clover Flags (if applicable)', val: state.clover},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'COC WF - Delta code', val: deltaStr},
-            {label: 'COC WF - what info changed', val: infoStr},
-            {label: 'COC WF - bank account belongs to registered person or business ?', val: state.bank},
-            {label: 'SA doc confirming ownership', val: state.sa_doc},
-            {label: 'All in scope BOs registered correctly', val: state.bo_reg},
-            {label: 'Is the provided SA recent?', val: state.sa_recent},
-            {label: 'Does SA information match with central registry/ext research?', val: state.sa_match},
-            {label: 'PC screening (if applicable)', val: state.pc_screen},
-            {label: 'Name: match/no match/urn', val: state.name_match},
-            {bold: true, text: `Strategic or Trusted?: ${state.tier || ''}`},
-            {bold: true, text: `Action: ${actionFinal}`}
-        ];
+        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\nPC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
+
     } else if (current === 'bav ramp') {
-        lines = [
-            {bold: true, text: 'KYC LR- BAV RAMP'},
-            {label: 'Account Overview', val: state.overview},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'BS', val: state.bs},
-            {label: 'Is BS in name of BO (only for UK Seller)', val: state.uk_bo},
-            {label: 'PSC/Companies SS/SA Urn', val: state.psc_urn},
-            {label: 'MO', val: state.mo},
-            {label: 'Is it a EU based seller with 3rd party payment provider?', val: state.eu_provider},
-            {label: 'If yes, are there any other red flags on the account?', val: state.red_flags},
-            {bold: true, text: `Action: ${actionFinal}`}
-        ];
+        o = `<strong> KYC LR- BAV RAMP </strong><br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong>`;
+
     } else if (current === 'lrv') {
         let sigName = state.sig_name || '';
         let sigUrn = state.sig_urn || '';
         let sigRole = state.sig_role || '';
         let sigDocType = state.sig_doctype || '';
         let sigDocUrn = state.sig_doc_urn || '';
-        let sigSentence = `LOA signatory [${sigName}] validated as a legal representative of the business via external research [${sigUrn} URN link uploaded in Alex]. The signatory is [${sigRole}] >> [${sigDocType}] found in Alex: [${sigDocUrn}]`;
 
-        lines = [
-            {bold: true, text: 'KYC LR- LRV'},
-            {label: 'Account Overview', val: state.lrv_overview},
-            {label: 'Disb. status check', val: state.disb},
-            {label: 'Sign-in', val: state.signin},
-            {raw: sigSentence},
-            {label: 'Potential LEC', val: state.lec},
-            {label: 'Potential wrong entity', val: state.wrong},
-            {label: 'COC WF - Delta code', val: deltaStr},
-            {label: 'COC WF - what info changed', val: infoStr},
-            {label: 'COC WF - bank account belongs to registered person or business ?', val: state.bank},
-            {bold: true, text: `Outcome: ${actionFinal}`}
-        ];
+        o = `<strong>KYC LR- LRV</strong><br>\nAccount Overview: ${state.lrv_overview || ''}<br>\nDisb. status check: ${state.disb || ''}<br>\nSign-in: ${state.signin || ''}<br>\nLOA signatory [${sigName}] validated as a legal representative of the business via external research [${sigUrn} URN link uploaded in Alex]. The signatory is [${sigRole}] >> [${sigDocType}] found in Alex: [${sigDocUrn}]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\n<strong>Outcome: ${actionFinal}</strong>`;
     }
 
-    let htmlOutput = lines.map(line => {
-        if (line.bold) {
-            return `<strong>${escHtml(line.text)}</strong>`;
-        } else if (line.raw) {
-            return escHtml(line.raw);
-        } else {
-            return `${escHtml(line.label)}: ${escHtml(line.val || '')}`;
-        }
-    }).join('<br>');
-
-    document.getElementById('output').innerHTML = htmlOutput;
+    document.getElementById('output').value = o;
 
     const btn = document.getElementById('genBtn');
     btn.classList.remove('flash');
@@ -768,52 +644,25 @@ function generate() {
     btn.classList.add('flash');
 }
 
-function escHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
 async function copyOutput() {
-    const outputEl = document.getElementById('output');
-    const plainText = outputEl.innerText;
+    const output = document.getElementById('output').value;
 
-    if (!plainText || plainText.trim() === 'Your generated note will appear here...') {
+    if (!output) {
         alert('Nothing to copy. Generate a note first.');
         return;
     }
 
-    const htmlContent = outputEl.innerHTML;
-
     try {
-        const blob = new Blob([htmlContent], {type: 'text/html'});
-        const blobPlain = new Blob([plainText], {type: 'text/plain'});
-        const item = new ClipboardItem({
-            'text/html': blob,
-            'text/plain': blobPlain
-        });
-        await navigator.clipboard.write([item]);
-
+        await navigator.clipboard.writeText(output);
         const btn = document.getElementById('copyBtn');
-        btn.innerText = "✓ Copied (Rich Text)!";
+        btn.innerText = "✓ Copied!";
         btn.style.background = "#28a745";
         setTimeout(() => {
             btn.innerText = "📋 Copy to Clipboard";
             btn.style.background = "";
         }, 2000);
     } catch (err) {
-        try {
-            await navigator.clipboard.writeText(plainText);
-            const btn = document.getElementById('copyBtn');
-            btn.innerText = "✓ Copied (Plain Text)!";
-            btn.style.background = "#28a745";
-            setTimeout(() => {
-                btn.innerText = "📋 Copy to Clipboard";
-                btn.style.background = "";
-            }, 2000);
-        } catch (e) {
-            alert("Unable to copy. Please select the text and copy manually.");
-        }
+        alert("Unable to copy. Please select the text and copy manually.");
     }
 }
 </script>
