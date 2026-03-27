@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KYC Tool - Full Registration Update</title>
+    <title>KYC Tool - BIV Specialized Update</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; overflow: hidden; }
         .navbar { background: #000; color: #fff; padding: 15px 25px; display: flex; gap: 10px; flex-wrap: wrap; }
@@ -20,7 +20,7 @@
         .field { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.8em; color: #555; }
         
-        .multi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .multi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
         .choice-row { display: flex; gap: 4px; }
         button { background: #eee; border: none; padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.75em; text-transform: uppercase; transition: 0.2s; }
         button:hover { background: #ddd; }
@@ -101,11 +101,6 @@ function setVal(k, v, el) {
         drop.style.display = 'none';
         state['action_details'] = '';
     }
-    
-    if (current === 'bav ramp' && k === 'eu') {
-        const flagBox = document.getElementById('red_flag_container');
-        if (flagBox) flagBox.style.display = (v === 'Y') ? 'block' : 'none';
-    }
 }
 
 function load(type, el) {
@@ -114,12 +109,11 @@ function load(type, el) {
     el.classList.add('active-tab');
     document.getElementById('genBtn').style.display = 'block';
 
-    // Added New Registration to Delta and Info options
-    const deltaOptions = [...Array.from({length:12},(_,i)=>`Delta ${i+1}`), 'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'];
+    const deltaOptions = [...Array.from({length:21},(_,i)=>`Delta ${i+1}`), 'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'];
     const infoOptions = ['as per delta codes', 'no changes', 'RL changed', 'PKYC', 'FKYC', 'FSIV', 'New Registration'];
 
     let f = `<h3>KYC - ${type.toUpperCase()}</h3>`;
-    const common = () => `
+    const commonFields = () => `
         <div class='field'><label>disb. status check:</label>
             <select onchange="state['disb']=this.value"><option value=''>Select Status</option><option>allow</option><option>disallow by system</option><option>disallow by sim</option></select>
         </div>
@@ -134,14 +128,19 @@ function load(type, el) {
         </div>
         <div class='field'><label>bank account belongs to registered person or business ?</label><select onchange="state['bank']=this.value"><option value=''>Select</option><option>Person</option><option>Business</option><option>PKYC</option><option>FKYC</option><option>FSIV</option><option>New Registration</option></select></div>`;
 
-    if(type === 'loa') {
-        f += common() + `<div class='field'><label>Legal representative verification (if no LRV task):</label><input oninput="state['lrv']=this.value"><label>LOA URN:</label><input oninput="state['urn']=this.value"><label>LOA signatory registration status (APA only):</label><input oninput="state['sign']=this.value"></div>`;
+    if(type === 'biv') {
+        f = `<h3>KYC - BIV</h3>
+            <div class='field'><label>Current business status:</label><input placeholder="e.g. Active, Dissolved..." oninput="state['biz_status']=this.value"></div>
+            <div class='field'><label>Is COI same as Country of Biz address?:</label><div class='choice-row'><button onclick="setVal('coi_match','Yes',this)">Yes</button><button onclick="setVal('coi_match','No',this)">No</button></div></div>
+            <div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` 
+            + commonFields() + 
+            `<div class='field'><label>POC legal representative check:</label><input oninput="state['poc']=this.value"><label>RE URN:</label><input oninput="state['re_urn']=this.value"><label>External Research URN:</label><input placeholder="NA" oninput="state['ext_urn']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
+    } else if(type === 'loa') {
+        f += commonFields() + `<div class='field'><label>Legal representative verification (if no LRV task):</label><input oninput="state['lrv']=this.value"><label>LOA URN:</label><input oninput="state['urn']=this.value"><label>LOA signatory registration status (APA only):</label><input oninput="state['sign']=this.value"></div>`;
     } else if(type === 'idv') {
-        f = `<h3>KYC - IDV</h3><div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` + common() + `<div class='field'><label>POC legal representative check:</label><input oninput="state['poc']=this.value"><label>ID URN:</label><input oninput="state['id_urn']=this.value"><label>POA URN:</label><input oninput="state['poa_urn']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div><label>suspicious doc check:</label><div class='choice-row'><button onclick="setVal('susp','Y',this)">Y</button><button onclick="setVal('susp','N',this)">N</button></div></div>`;
-    } else if(type === 'biv') {
-        f = `<h3>KYC - BIV</h3><div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` + common() + `<div class='field'><label>POC legal representative check:</label><input oninput="state['poc']=this.value"><label>RE URN:</label><input oninput="state['re_urn']=this.value"><label>External Research URN:</label><input placeholder="NA" oninput="state['ext_urn']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
+        f = `<h3>KYC - IDV</h3><div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` + commonFields() + `<div class='field'><label>POC legal representative check:</label><input oninput="state['poc']=this.value"><label>ID URN:</label><input oninput="state['id_urn']=this.value"><label>POA URN:</label><input oninput="state['poa_urn']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div><label>suspicious doc check:</label><div class='choice-row'><button onclick="setVal('susp','Y',this)">Y</button><button onclick="setVal('susp','N',this)">N</button></div></div>`;
     } else if(type === 'bov') {
-        f = `<h3>KYC - BOV</h3><div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` + common() + `<div class='field'><label>SA doc confirming ownership:</label><input oninput="state['sa_doc']=this.value"><label>Does SA information match central registry?:</label><input oninput="state['sa_match']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
+        f = `<h3>KYC - BOV</h3><div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` + commonFields() + `<div class='field'><label>SA doc confirming ownership:</label><input oninput="state['sa_doc']=this.value"><label>Does SA information match central registry?:</label><input oninput="state['sa_match']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
     } else if(type === 'bav ramp') {
         f = `<h3>KYC - BAV RAMP</h3>
             <div class='field'><label>Account Overview:</label><div class='choice-row'><button onclick="setVal('overview','Normal',this)">Normal</button><button onclick="setVal('overview','Blocked',this)">Blocked</button></div></div>
@@ -151,8 +150,7 @@ function load(type, el) {
             <div class='field'><label>Is BS in name of BO (only for UK Seller):</label><div class='choice-row'><button onclick="setVal('uk_bo','Yes',this)">Yes</button><button onclick="setVal('uk_bo','No',this)">No</button></div></div>
             <div class='field'><label>PSC/Companies SS/SA Urn:</label><div class='choice-row'><button onclick="setVal('psc','NA',this)">NA</button><button onclick="setVal('psc','Y',this)">Y</button></div></div>
             <div class='field'><label>MO:</label><div class='choice-row'><button onclick="setVal('mo','Y',this)">Y</button><button onclick="setVal('mo','N',this)">N</button></div></div>
-            <div class='field'><label>Is it a EU based seller with 3rd party payment provider?</label><div class='choice-row'><button onclick="setVal('eu','Y',this)">Y</button><button onclick="setVal('eu','N',this)">N</button></div></div>
-            <div class='field' id='red_flag_container' style='display:none;'><label>If yes, are there any other red flags on the account?</label><div class='choice-row'><button onclick="setVal('red_flags','Y',this)">Y</button><button onclick="setVal('red_flags','N',this)">N</button></div></div>`;
+            <div class='field'><label>Is it a EU based seller with 3rd party payment provider?</label><div class='choice-row'><button onclick="setVal('eu','Y',this)">Y</button><button onclick="setVal('eu','N',this)">N</button></div></div>`;
     } else if(type === 'lrv') {
         f += `<div class='field'><label>Account Overview:</label><input oninput="state['overview']=this.value"><label>Signatory Name:</label><input oninput="state['sig_name']=this.value"><label>Role/Title:</label><input oninput="state['role']=this.value"></div>`;
     }
@@ -168,28 +166,21 @@ function generate() {
     let o = "";
 
     if(current === 'bav ramp') {
-        o = `<strong>KYC LR- BAV RAMP </strong><br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider? ${state.eu || ''}<br>\n`;
-        if (state.eu === 'Y') {
-            o += `If yes, are there any other red flags on the account? ${state.red_flags || ''}<br>\n`;
-        }
-        o += `<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- BAV RAMP </strong><br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider? ${state.eu || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
     } else {
         o = `<strong>KYC LR- ${current.toUpperCase()} </strong><br>\n`;
-        if(current === 'lrv') o = `<strong>Low - KYC LRV:</strong><br>\n`;
-
         const addCommons = () => `Potential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\n`;
 
-        if(current === 'loa') {
+        if(current === 'biv') {
+            o += `Current business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\n` + addCommons() + `POC legal representative check: ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN: ${state.ext_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n`;
+        } else if(current === 'loa') {
             o += `disb. status check: ${state.disb || ''}<br>\n` + addCommons() + `Legal representative verification (if no LRV task): ${state.lrv || ''}<br>\nLOA URN: ${state.urn || ''}<br>\nLOA signatory registration status (APA only): ${state.sign || ''}<br>\n`;
         } else if(current === 'idv') {
             o += `Does FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\n` + addCommons() + `POC legal representative check: ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check: ${state.susp || ''}<br>\n`;
-        } else if(current === 'biv') {
-            o += `Does FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\n` + addCommons() + `POC legal representative check: ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN: ${state.ext_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n`;
         } else if(current === 'bov') {
             o += `Does FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\n` + addCommons() + `SA doc confirming ownership: ${state.sa_doc || ''}<br>\nDoes SA information match central registry?: ${state.sa_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n`;
         } else if(current === 'lrv') {
-            o += `Account Overview: ${state.overview || ''}<br>\nLOA signatory [${state.sig_name || ''}] validated... ${state.role || ''}<br>\n` + addCommons();
-            o += `<strong>Outcome: ${actionFinal}</strong><br>\n`;
+            o = `<strong>Low - KYC LRV:</strong><br>\nAccount Overview: ${state.overview || ''}<br>\nLOA signatory [${state.sig_name || ''}] validated... ${state.role || ''}<br>\n` + addCommons() + `<strong>Outcome: ${actionFinal}</strong><br>\n`;
             document.getElementById('output').value = o; return;
         }
         o += `<strong>Action: ${actionFinal}</strong><br>`;
