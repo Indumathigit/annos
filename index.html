@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KYC Tool - Full Suite</title>
+    <title>KYC Tool - Final Suite Fixed</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; overflow: hidden; }
         .navbar { background: #000; color: #fff; padding: 15px 25px; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -12,7 +12,7 @@
 
         .container { display: flex; gap: 20px; padding: 20px; height: calc(100vh - 80px); box-sizing: border-box; }
         .left-panel { flex: 1.1; display: flex; flex-direction: column; gap: 10px; }
-        .form-box { background: #fff; padding: 20px; border-radius: 10px; flex-grow: 1; overflow-y: auto; border: 1px solid #ddd; }
+        .form-box { background: #fff; padding: 20px; border-radius: 10px; flex-grow: 1; overflow-y: auto; border: 1px solid #ddd; position: relative; }
         .right-panel { flex: 0.9; display: flex; flex-direction: column; gap: 10px; }
         
         textarea { flex-grow: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc; font-family: 'Courier New', monospace; resize: none; background: #fff; font-size: 13px; color: #1a1a1a; line-height: 1.6; }
@@ -30,7 +30,9 @@
         .copy-btn { background: #6c2bd9; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
         input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 13px; margin-top: 4px;}
-        h3 { margin: 0 0 15px 0; color: #007bff; font-size: 1.1em; border-bottom: 2px solid #007bff; padding-bottom: 5px;}
+        .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; margin-bottom: 15px; padding-bottom: 5px; }
+        h3 { margin: 0; color: #007bff; font-size: 1.1em; }
+        .reset-link { color: #dc3545; font-size: 0.7em; cursor: pointer; text-decoration: underline; font-weight: bold; }
         .clear-btn { background: #dc3545; color: #fff; padding: 2px 6px; font-size: 0.7em; margin-left: 10px; border-radius: 3px; }
     </style>
 </head>
@@ -47,11 +49,13 @@
 
 <div class="container">
     <div class="left-panel">
-        <div id="form" class="form-box"></div>
+        <div id="form" class="form-box">
+            <div style="text-align: center; padding-top: 50px; color: #999;">Select a module from the top to begin</div>
+        </div>
         <button class="primary-btn" id="genBtn" style="display:none;" onclick="generate()">Generate Note</button>
     </div>
     <div class="right-panel">
-        <textarea id="output" readonly></textarea>
+        <textarea id="output" readonly placeholder="Your generated note will appear here..."></textarea>
         <button id="copyBtn" class="copy-btn" onclick="copy()">Copy to Clipboard</button>
     </div>
 </div>
@@ -89,8 +93,9 @@ function clearMulti(key) {
 function load(type, el) {
     current = type; state = {};
     document.querySelectorAll('.navbar span').forEach(s => s.classList.remove('active-tab'));
-    el.classList.add('active-tab');
+    if(el) el.classList.add('active-tab');
     document.getElementById('genBtn').style.display = 'block';
+    document.getElementById('output').value = "";
 
     const deltaOptions = [...Array.from({length:21},(_,i)=>`Delta ${i+1}`), 'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'];
     const infoOptions = ['as per delta codes', 'no changes', 'RL changed', 'PKYC', 'FKYC', 'FSIV', 'New Registration'];
@@ -109,7 +114,7 @@ function load(type, el) {
         return html;
     };
 
-    let f = `<h3>KYC - ${type.toUpperCase()}</h3>`;
+    let f = `<div class="header-row"><h3>KYC - ${type.toUpperCase()}</h3><span class="reset-link" onclick="load('${type}')">RESET FORM</span></div>`;
 
     if(type === 'loa') {
         f += getCommons(false) + `
@@ -168,27 +173,41 @@ function generate() {
     let o = "";
 
     if(current === 'loa') {
-        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN: ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN: ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
     } else if(current === 'idv') {
-        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
     } else if(current === 'biv') {
-        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
     } else if(current === 'bov') {
-        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
     } else if(current === 'bav ramp') {
-        o = `<strong> KYC LR- BAV RAMP </strong> <br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong> <br>`;
+        o = `<strong> KYC LR- BAV RAMP </strong><br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong>`;
     } else if(current === 'lrv') {
-        o = `<strong>KYC LR- LRV </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification status: ${state.lrv_status || ''}<br>\nLRV URN: ${state.lrv_urn || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
+        o = `<strong>KYC LR- LRV </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification status: ${state.lrv_status || ''}<br>\nLRV URN: ${state.lrv_urn || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
     }
     
     document.getElementById('output').value = o;
 }
 
 async function copy() {
-    const text = document.getElementById('output').value.replace(/<br>\n/g, '\n').replace(/<strong>/g, '').replace(/<\/strong>/g, '');
-    await navigator.clipboard.writeText(text);
-    const btn = document.getElementById('copyBtn'); btn.innerText = "✓ Copied!";
-    setTimeout(() => btn.innerText = "Copy to Clipboard", 2000);
+    const output = document.getElementById('output').value;
+    // Replace all <br>\n or just <br> with a real newline \n
+    // Then strip out all remaining HTML tags like <strong>
+    const cleanText = output.replace(/<br\s*\/?>/gi, '\n')
+                            .replace(/<\/?[^>]+(>|$)/g, "");
+    
+    try {
+        await navigator.clipboard.writeText(cleanText);
+        const btn = document.getElementById('copyBtn'); 
+        btn.innerText = "✓ Copied Successfully!";
+        btn.style.background = "#28a745";
+        setTimeout(() => {
+            btn.innerText = "Copy to Clipboard";
+            btn.style.background = "#6c2bd9";
+        }, 2000);
+    } catch (err) {
+        alert("Unable to copy. Please select the text and copy manually.");
+    }
 }
 </script>
 </body>
