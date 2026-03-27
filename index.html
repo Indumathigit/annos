@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KYC Tool - Final BIV & Clover Update</title>
+    <title>KYC Tool - Final Version</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; overflow: hidden; }
         .navbar { background: #000; color: #fff; padding: 15px 25px; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -11,27 +11,27 @@
         .navbar span.active-tab { color: #fff; background: #007bff; opacity: 1; }
 
         .container { display: flex; gap: 20px; padding: 20px; height: calc(100vh - 80px); box-sizing: border-box; }
-        .left-panel { flex: 1.2; display: flex; flex-direction: column; gap: 10px; }
+        .left-panel { flex: 1.1; display: flex; flex-direction: column; gap: 10px; }
         .form-box { background: #fff; padding: 20px; border-radius: 10px; flex-grow: 1; overflow-y: auto; border: 1px solid #ddd; }
-        .right-panel { flex: 0.8; display: flex; flex-direction: column; gap: 10px; }
+        .right-panel { flex: 0.9; display: flex; flex-direction: column; gap: 10px; }
         
         textarea { flex-grow: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc; font-family: 'Courier New', monospace; resize: none; background: #fff; font-size: 13px; color: #1a1a1a; line-height: 1.6; }
         
-        .field { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.8em; color: #555; }
+        .field { margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.75em; color: #555; text-transform: uppercase; }
         
         .multi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
         .choice-row { display: flex; gap: 4px; }
-        button { background: #eee; border: 1px solid #ddd; padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.75em; text-transform: uppercase; transition: 0.2s; }
+        button { background: #eee; border: 1px solid #ddd; padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.75em; text-transform: uppercase; }
         button.active { background: #007bff; color: #fff; border-color: #0056b3; }
 
         .action-section { background: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid #007bff; margin-top: 10px; }
         .primary-btn { background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         .copy-btn { background: #6c2bd9; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
-        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 13px; margin-top: 5px; }
+        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 13px; margin-top: 4px;}
         h3 { margin: 0 0 15px 0; color: #007bff; font-size: 1.1em; border-bottom: 2px solid #007bff; padding-bottom: 5px;}
-        .clear-btn { background: #dc3545; color: #fff; padding: 2px 6px; font-size: 0.7em; margin-left: 10px; border-radius: 3px; vertical-align: middle; }
+        .clear-btn { background: #dc3545; color: #fff; padding: 2px 6px; font-size: 0.7em; margin-left: 10px; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -42,7 +42,6 @@
     <span onclick="load('biv', this)">BIV</span>
     <span onclick="load('bov', this)">BOV</span>
     <span onclick="load('bav ramp', this)">BAV RAMP</span>
-    <span onclick="load('lrv', this)">LRV</span>
 </div>
 
 <div class="container">
@@ -60,14 +59,14 @@
 let state = {};
 let current = "";
 
-const reasons = {
-    'idv': ['RFD for indate ID doc', 'RFD for indate POA', 'RFD for both ID and POA'],
-    'biv': ['RFD for indate RE', 'RFD for valid RE'],
-    'bov': ['RFD for recent SA', 'RFD for Org Chart'],
-    'loa': ['RFD for LOA'],
-    'bav ramp': ['RFD for indate BS', 'RFD for valid BS'],
-    'lrv': ['RFD for LOA']
-};
+function setVal(k, v, el) {
+    state[k] = v;
+    if(el) {
+        let btns = el.parentElement.querySelectorAll('button');
+        btns.forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+}
 
 function toggleMulti(key, val, el) {
     if (!state[key]) state[key] = [];
@@ -86,22 +85,6 @@ function clearMulti(key) {
     document.querySelectorAll('.multi-grid button').forEach(b => b.classList.remove('active'));
 }
 
-function setVal(k, v, el) {
-    state[k] = v;
-    if(el) {
-        let btns = el.parentElement.querySelectorAll('button');
-        btns.forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-    }
-    const drop = document.getElementById('reason_dropdown');
-    if (drop && (v === 'RFD' || v === 'Fail')) {
-        drop.style.display = 'block';
-    } else if (drop) {
-        drop.style.display = 'none';
-        state['action_details'] = '';
-    }
-}
-
 function load(type, el) {
     current = type; state = {};
     document.querySelectorAll('.navbar span').forEach(s => s.classList.remove('active-tab'));
@@ -111,62 +94,65 @@ function load(type, el) {
     const deltaOptions = [...Array.from({length:21},(_,i)=>`Delta ${i+1}`), 'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'];
     const infoOptions = ['as per delta codes', 'no changes', 'RL changed', 'PKYC', 'FKYC', 'FSIV', 'New Registration'];
 
-    let f = `<h3>KYC - ${type.toUpperCase()}</h3>`;
-    
-    const commonFields = () => `
-        <div class='field'><label>Clover Flags (if applicable):</label>
-            <select onchange="state['clover']=this.value">
-                <option value=''>Select Flag</option>
-                <option>pass</option>
-                <option>No review needed</option>
-                <option>sign in from these countries</option>
-            </select>
-        </div>
-        <div class='field'><label>disb. status check:</label>
-            <select onchange="state['disb']=this.value">
-                <option value=''>Select Status</option>
-                <option>allow</option>
-                <option>disallow by system</option>
-                <option>disallow by sim</option>
-            </select>
-        </div>
-        <div class='field'><label>Potential LEC:</label><div class='choice-row'>
-            <button onclick="setVal('lec','yes',this)">yes</button>
-            <button onclick="setVal('lec','no',this)">no</button>
-        </div></div>
-        <div class='field'><label>Potential wrong entity:</label><div class='choice-row'>
-            <button onclick="setVal('wrong','yes',this)">yes</button>
-            <button onclick="setVal('wrong','no',this)">no</button>
-        </div></div>
-        <div class='field'><label>COC WF - Delta code <button class="clear-btn" onclick="clearMulti('delta')">Clear</button></label>
-            <div class='multi-grid'>${deltaOptions.map(opt => `<button onclick="toggleMulti('delta','${opt}',this)">${opt}</button>`).join('')}</div>
-        </div>
-        <div class='field'><label>COC WF - what info changed:</label>
-            <div class='multi-grid'>${infoOptions.map(opt => `<button onclick="toggleMulti('info','${opt}',this)">${opt}</button>`).join('')}</div>
-        </div>
-        <div class='field'><label>bank account belongs to registered person or business ?</label>
-            <select onchange="state['bank']=this.value">
-                <option value=''>Select</option>
-                <option>Person</option><option>Business</option><option>PKYC</option><option>FKYC</option><option>FSIV</option><option>New Registration</option>
-            </select>
-        </div>`;
+    const getCommons = (inclFDD = true) => {
+        let html = "";
+        if(inclFDD) html += `<div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>`;
+        html += `
+        <div class='field'><label>disb. status check:</label><select onchange="state['disb']=this.value"><option value=''>Select</option><option>allow</option><option>disallow by system</option><option>disallow by sim</option></select></div>
+        <div class='field'><label>Clover Flags (if applicable):</label><select onchange="state['clover']=this.value"><option value=''>Select</option><option>pass</option><option>No review needed</option><option>sign in from these countries</option></select></div>
+        <div class='field'><label>Potential LEC:</label><div class='choice-row'><button onclick="setVal('lec','yes',this)">yes</button><button onclick="setVal('lec','no',this)">no</button></div></div>
+        <div class='field'><label>Potential wrong entity:</label><div class='choice-row'><button onclick="setVal('wrong','yes',this)">yes</button><button onclick="setVal('wrong','no',this)">no</button></div></div>
+        <div class='field'><label>COC WF - Delta code <button class="clear-btn" onclick="clearMulti('delta')">Clear</button></label><div class='multi-grid'>${deltaOptions.map(o => `<button onclick="toggleMulti('delta','${o}',this)">${o}</button>`).join('')}</div></div>
+        <div class='field'><label>COC WF - what info changed:</label><div class='multi-grid'>${infoOptions.map(o => `<button onclick="toggleMulti('info','${o}',this)">${o}</button>`).join('')}</div></div>
+        <div class='field'><label>COC WF - bank account belongs to registered person or business ?</label><select onchange="state['bank']=this.value"><option value=''>Select</option><option>Person</option><option>Business</option><option>PKYC</option><option>FKYC</option><option>FSIV</option><option>New Registration</option></select></div>`;
+        return html;
+    };
 
-    if(type === 'biv') {
-        f = `<h3>KYC - BIV</h3>
-            <div class='field'><label>Current business status:</label><input placeholder="Active" oninput="state['biz_status']=this.value"></div>
-            <div class='field'><label>Is COI same as Country of Biz address?:</label><div class='choice-row'>
-                <button onclick="setVal('coi_match','Yes',this)">Yes</button>
-                <button onclick="setVal('coi_match','No',this)">No</button>
-            </div></div>
-            <div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>` 
-            + commonFields() + 
-            `<div class='field'><label>POC legal representative check:</label><input oninput="state['poc']=this.value"><label>RE URN:</label><input oninput="state['re_urn']=this.value"><label>External Research URN:</label><input placeholder="NA" oninput="state['ext_urn']=this.value"><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
-    } else {
-        // ... (other modules loa, idv, bov, etc keep current logic)
-        f += commonFields();
+    let f = `<h3>KYC - ${type.toUpperCase()}</h3>`;
+
+    if(type === 'loa') {
+        f += getCommons(false) + `
+        <div class='field'><label>Legal representative verification (if no LRV task):</label><input oninput="state['lrv_check']=this.value"></div>
+        <div class='field'><label>LOA URN:</label><input oninput="state['loa_urn']=this.value"></div>
+        <div class='field'><label>LOA signatory registration status (APA accounts only):</label><input oninput="state['apa_status']=this.value"></div>`;
+    } else if(type === 'idv') {
+        f += getCommons(true) + `
+        <div class='field'><label>POC legal representative check(if no LRV task):</label><input oninput="state['poc']=this.value"></div>
+        <div class='field'><label>ID URN:</label><input oninput="state['id_urn']=this.value"></div>
+        <div class='field'><label>POA URN:</label><input oninput="state['poa_urn']=this.value"></div>
+        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>
+        <div class='field'><label>suspicious doc check (if found any):</label><input oninput="state['susp_check']=this.value"></div>`;
+    } else if(type === 'biv') {
+        f += getCommons(true) + `
+        <div class='field'><label>POC legal representative check(if no LRV task):</label><input oninput="state['poc']=this.value"></div>
+        <div class='field'><label>RE URN:</label><input oninput="state['re_urn']=this.value"></div>
+        <div class='field'><label>External Research URN (if needed):</label><input placeholder="NA" oninput="state['ext_urn']=this.value"></div>
+        <div class='field'><label>Current business status:</label><input placeholder="Active" oninput="state['biz_status']=this.value"></div>
+        <div class='field'><label>Is COI same as Country of Biz address?:</label><div class='choice-row'><button onclick="setVal('coi_match','Yes',this)">Yes</button><button onclick="setVal('coi_match','No',this)">No</button></div></div>
+        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
+    } else if(type === 'bov') {
+        f += getCommons(true) + `
+        <div class='field'><label>SA doc confirming ownership:</label><input oninput="state['sa_doc']=this.value"></div>
+        <div class='field'><label>All in scope BOs registered correctly:</label><div class='choice-row'><button onclick="setVal('bo_reg','Yes',this)">Yes</button><button onclick="setVal('bo_reg','No',this)">No</button></div></div>
+        <div class='field'><label>Is the provided SA recent?:</label><div class='choice-row'><button onclick="setVal('sa_recent','Yes',this)">Yes</button><button onclick="setVal('sa_recent','No',this)">No</button></div></div>
+        <div class='field'><label>Does SA information match with central registry/ext research?:</label><input oninput="state['sa_match']=this.value"></div>
+        <div class='field'><label>PC screening (if applicable):</label><input oninput="state['pc_screen']=this.value"></div>
+        <div class='field'><label>Name: match/no match/urn:</label><input oninput="state['name_match']=this.value"></div>
+        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
+    } else if(type === 'bav ramp') {
+        f += `
+        <div class='field'><label>Account Overview:</label><select onchange="state['overview']=this.value"><option value=''>Select</option><option>Normal</option><option>Blocked</option></select></div>
+        <div class='field'><label>Potential LEC:</label><div class='choice-row'><button onclick="setVal('lec','yes',this)">yes</button><button onclick="setVal('lec','no',this)">no</button></div></div>
+        <div class='field'><label>Potential wrong entity:</label><div class='choice-row'><button onclick="setVal('wrong','yes',this)">yes</button><button onclick="setVal('wrong','no',this)">no</button></div></div>
+        <div class='field'><label>BS:</label><input oninput="state['bs']=this.value"></div>
+        <div class='field'><label>Is BS in name of BO (only for UK Seller):</label><div class='choice-row'><button onclick="setVal('uk_bo','Yes',this)">Yes</button><button onclick="setVal('uk_bo','No',this)">No</button></div></div>
+        <div class='field'><label>PSC/Companies SS/SA Urn:</label><input oninput="state['psc_urn']=this.value"></div>
+        <div class='field'><label>MO:</label><input oninput="state['mo']=this.value"></div>
+        <div class='field'><label>Is it a EU based seller with 3rd party payment provider?:</label><div class='choice-row'><button onclick="setVal('eu_provider','Y',this)">Y</button><button onclick="setVal('eu_provider','N',this)">N</button></div></div>
+        <div class='field'><label>If yes, are there any other red flags on the account?:</label><input oninput="state['red_flags']=this.value"></div>`;
     }
 
-    f += `<div class="action-section"><label><strong>Final Action:</strong></label><div class='choice-row' style="margin-bottom:8px;"><button onclick="setVal('action','Verify',this)">Verify</button><button onclick="setVal('action','RFD',this)">RFD</button><button onclick="setVal('action','Fail',this)">Fail</button><button onclick="setVal('action','Transfer',this)">Transfer</button><button onclick="setVal('action','Escalate',this)">Escalate</button></div><select id="reason_dropdown" style="display:none;" onchange="state['action_details']=this.value; document.getElementById('action_input').value=this.value;"><option value=''>-- Select Reason --</option>${reasons[type] ? reasons[type].map(r => `<option value="${r}">${r}</option>`).join('') : ''}</select><input id="action_input" placeholder="Custom reason..." oninput="state['action_details']=this.value"></div>`;
+    f += `<div class="action-section"><label><strong>Final Action:</strong></label><div class='choice-row' style="margin-bottom:8px;"><button onclick="setVal('action','Verify',this)">Verify</button><button onclick="setVal('action','RFD',this)">RFD</button><button onclick="setVal('action','Fail',this)">Fail</button></div><input id="action_input" placeholder="Enter details..." oninput="state['action_details']=this.value"></div>`;
     document.getElementById('form').innerHTML = f;
 }
 
@@ -174,19 +160,20 @@ function generate() {
     let deltaStr = (state.delta || []).join(', ');
     let infoStr = (state.info || []).join(', ');
     let actionFinal = (state.action || '') + (state.action_details ? ' - ' + state.action_details : '');
-    let o = `<strong>KYC LR- ${current.toUpperCase()} </strong><br>\n`;
+    let o = "";
 
-    if(current === 'biv') {
-        o += `Current business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\nDoes FDD apply?: ${state.fdd || ''}<br>\n`;
+    if(current === 'loa') {
+        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN: ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
+    } else if(current === 'idv') {
+        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong><br>`;
+    } else if(current === 'biv') {
+        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong><br>`;
+    } else if(current === 'bov') {
+        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong><br>`;
+    } else if(current === 'bav ramp') {
+        o = `<strong> KYC LR- BAV RAMP </strong> <br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong> <br>`;
     }
     
-    o += `Clover Flags (if applicable): ${state.clover || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\n`;
-    
-    if(current === 'biv') {
-        o += `POC legal representative check: ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN: ${state.ext_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n`;
-    }
-    
-    o += `<strong>Action: ${actionFinal}</strong><br>`;
     document.getElementById('output').value = o;
 }
 
