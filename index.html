@@ -2,61 +2,623 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KYC Tool - Final Suite Fixed</title>
+    <title>KYC Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #eef1f5; color: #333; height: 100vh; overflow: hidden; }
-        .navbar { background: #000; color: #fff; padding: 15px 25px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .navbar span { cursor: pointer; font-weight: 600; opacity: 0.8; font-size: 11px; text-transform: uppercase; padding: 5px 10px; border-radius: 4px; }
-        .navbar span:hover { background: #333; opacity: 1; }
-        .navbar span.active-tab { color: #fff; background: #007bff; opacity: 1; }
+        :root {
+            --bg: #0d0f14;
+            --surface: #14171f;
+            --surface2: #1c2030;
+            --surface3: #232840;
+            --border: #2a2f45;
+            --border-bright: #3a4060;
+            --text: #e8ecf5;
+            --text-muted: #6b7394;
+            --text-dim: #9aa0c0;
+            --accent: #4f7fff;
+            --accent-glow: rgba(79,127,255,0.18);
+            --accent2: #7c4fff;
+            --green: #2ecc8a;
+            --green-glow: rgba(46,204,138,0.2);
+            --red: #ff4f6a;
+            --yellow: #ffcc4f;
+            --radius: 10px;
+            --radius-sm: 6px;
+        }
 
-        .container { display: flex; gap: 20px; padding: 20px; height: calc(100vh - 80px); box-sizing: border-box; }
-        .left-panel { flex: 1.1; display: flex; flex-direction: column; gap: 10px; }
-        .form-box { background: #fff; padding: 20px; border-radius: 10px; flex-grow: 1; overflow-y: auto; border: 1px solid #ddd; position: relative; }
-        .right-panel { flex: 0.9; display: flex; flex-direction: column; gap: 10px; }
-        
-        textarea { flex-grow: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc; font-family: 'Courier New', monospace; resize: none; background: #fff; font-size: 13px; color: #1a1a1a; line-height: 1.6; }
-        
-        .field { margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.75em; color: #555; text-transform: uppercase; }
-        
-        .multi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-        .choice-row { display: flex; gap: 4px; flex-wrap: wrap; }
-        button { background: #eee; border: 1px solid #ddd; padding: 6px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.75em; text-transform: uppercase; }
-        button.active { background: #007bff; color: #fff; border-color: #0056b3; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .action-section { background: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid #007bff; margin-top: 10px; }
-        .primary-btn { background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-        .copy-btn { background: #6c2bd9; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
-        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 13px; margin-top: 4px;}
-        .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; margin-bottom: 15px; padding-bottom: 5px; }
-        h3 { margin: 0; color: #007bff; font-size: 1.1em; }
-        .reset-link { color: #dc3545; font-size: 0.7em; cursor: pointer; text-decoration: underline; font-weight: bold; }
-        .clear-btn { background: #dc3545; color: #fff; padding: 2px 6px; font-size: 0.7em; margin-left: 10px; border-radius: 3px; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 52px;
+            flex-shrink: 0;
+        }
+        .navbar-logo {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-right: 16px;
+            padding-right: 16px;
+            border-right: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .nav-btn {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            transition: all 0.18s ease;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .nav-btn:hover {
+            color: var(--text);
+            background: var(--surface2);
+            border-color: var(--border);
+        }
+        .nav-btn.active-tab {
+            color: #fff;
+            background: var(--accent);
+            border-color: transparent;
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        /* ── LEFT PANEL ── */
+        .left-panel {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .form-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .form-scroll::-webkit-scrollbar { width: 5px; }
+        .form-scroll::-webkit-scrollbar-track { background: transparent; }
+        .form-scroll::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+        .form-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+        .empty-icon {
+            font-size: 48px;
+            opacity: 0.4;
+        }
+        .empty-state p { font-size: 14px; }
+        .module-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .module-pill {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .module-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        /* ── FORM HEADER ── */
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .module-badge {
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+        .form-title h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+        .reset-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+        }
+        .reset-btn:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(255,79,106,0.08);
+        }
+
+        /* ── FIELD ── */
+        .field {
+            margin-bottom: 16px;
+        }
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .field-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* ── CHOICE BUTTONS ── */
+        .choice-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .multi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+        .chip {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: all 0.14s ease;
+            font-family: 'DM Sans', sans-serif;
+            text-align: center;
+        }
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+        .chip.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+        .chip-clear {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            transition: all 0.14s;
+        }
+        .chip-clear:hover { color: var(--red); }
+
+        /* ── INPUTS ── */
+        .field input, .field select {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .field input::placeholder { color: var(--text-muted); }
+        .field input:focus, .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .field select option { background: var(--surface2); }
+
+        /* ── COMPOSITE BLOCK ── */
+        .composite-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .composite-block .sub-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        /* ── VALIDATION ── */
+        #validationBanner strong { font-weight: 700; }
+
+        /* ── DIVIDER ── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 18px 0;
+        }
+
+        /* ── ACTION SECTION ── */
+        .action-section {
+            background: var(--surface2);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius);
+            padding: 14px;
+            margin-top: 6px;
+        }
+        .action-section .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        /* ── GENERATE BUTTON ── */
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--green), #25b87a);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            letter-spacing: 0.6px;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 12px var(--green-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .generate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--green-glow);
+        }
+        .generate-btn.flash { animation: flashPulse 0.4s ease; }
+        @keyframes flashPulse {
+            0% { box-shadow: 0 0 0 0 var(--green-glow); }
+            50% { box-shadow: 0 0 0 12px transparent; }
+            100% { box-shadow: 0 2px 12px var(--green-glow); }
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            flex: 0.95;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .output-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+        .output-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .output-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+        .output-status {
+            font-size: 10px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .output-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .icon-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.3px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .icon-btn:hover {
+            border-color: var(--border-bright);
+            color: var(--text);
+        }
+        .icon-btn.danger:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(255,79,106,0.08);
+        }
+
+        .output-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .output-area::-webkit-scrollbar { width: 5px; }
+        .output-area::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+        /* Editable output textarea */
+        #outputContent {
+            font-family: 'DM Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.8;
+            color: var(--text);
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding: 0;
+        }
+        #outputContent::placeholder {
+            color: var(--text-muted);
+        }
+        .output-editable-hint {
+            padding: 8px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .copy-bar {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+        .copy-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #5a3fff, #4f30e0);
+            color: #fff;
+            border: none;
+            padding: 11px;
+            border-radius: var(--radius);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 12px rgba(90,63,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(90,63,255,0.35);
+        }
+        .copy-btn.success {
+            background: linear-gradient(135deg, var(--green), #25b87a);
+            box-shadow: 0 2px 12px var(--green-glow);
+        }
+
+        /* Inline strong tag styling in output */
+        #outputContent strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Note line styling in rendered output */
+        .note-line { 
+            display: block;
+            padding: 1px 0;
+        }
+        .note-key {
+            color: var(--text-muted);
+        }
+        .note-val {
+            color: var(--text);
+        }
+        .note-header {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .note-action {
+            color: var(--green);
+            font-weight: 700;
+            display: block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(46,204,138,0.08);
+            border: 1px solid rgba(46,204,138,0.2);
+            border-radius: var(--radius-sm);
+        }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <span onclick="load('loa', this)">LOA</span>
-    <span onclick="load('idv', this)">IDV</span>
-    <span onclick="load('biv', this)">BIV</span>
-    <span onclick="load('bov', this)">BOV</span>
-    <span onclick="load('bav ramp', this)">BAV RAMP</span>
-    <span onclick="load('lrv', this)">LRV</span>
+    <div class="navbar-logo">KYC LR</div>
+    <span class="nav-btn" onclick="load('loa', this)">LOA</span>
+    <span class="nav-btn" onclick="load('idv', this)">IDV</span>
+    <span class="nav-btn" onclick="load('biv', this)">BIV</span>
+    <span class="nav-btn" onclick="load('bov', this)">BOV</span>
+    <span class="nav-btn" onclick="load('bav ramp', this)">BAV RAMP</span>
+    <span class="nav-btn" onclick="load('lrv', this)">LRV</span>
 </div>
 
-<div class="container">
+<div class="workspace">
+    <!-- LEFT PANEL -->
     <div class="left-panel">
-        <div id="form" class="form-box">
-            <div style="text-align: center; padding-top: 50px; color: #999;">Select a module from the top to begin</div>
+        <div class="form-scroll" id="formScroll">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">⬡</div>
+                <p>Select a verification module to begin</p>
+                <div class="module-pills">
+                    <span class="module-pill" onclick="load('loa', document.querySelector('.nav-btn'))">LOA</span>
+                    <span class="module-pill" onclick="load('idv', null)">IDV</span>
+                    <span class="module-pill" onclick="load('biv', null)">BIV</span>
+                    <span class="module-pill" onclick="load('bov', null)">BOV</span>
+                    <span class="module-pill" onclick="load('bav ramp', null)">BAV RAMP</span>
+                    <span class="module-pill" onclick="load('lrv', null)">LRV</span>
+                </div>
+            </div>
+            <div id="form" style="display:none;"></div>
         </div>
-        <button class="primary-btn" id="genBtn" style="display:none;" onclick="generate()">Generate Note</button>
+        <div class="form-footer" id="formFooter" style="display:none;">
+            <button class="generate-btn" id="genBtn" onclick="generate()">
+                <span>⚡</span> Generate Note
+            </button>
+        </div>
     </div>
+
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
-        <textarea id="output" readonly placeholder="Your generated note will appear here..."></textarea>
-        <button id="copyBtn" class="copy-btn" onclick="copy()">Copy to Clipboard</button>
+        <div class="output-header">
+            <div class="output-header-left">
+                <span class="output-title">Note Output</span>
+                <span class="output-status" id="outputStatus">empty</span>
+            </div>
+            <div class="output-actions">
+                <button class="icon-btn" onclick="selectAll()" title="Select All">Select All</button>
+                <button class="icon-btn danger" onclick="clearOutput()">Clear</button>
+            </div>
+        </div>
+        <div class="output-area">
+            <textarea id="outputContent" spellcheck="false" placeholder="Your generated note will appear here...&#10;&#10;Select a module above, fill in the form, then click Generate Note."></textarea>
+        </div>
+        <div class="output-editable-hint">
+            <span>✏️ Output is editable — click to modify generated text</span>
+            <span id="charCount">0 chars</span>
+        </div>
+        <div class="copy-bar">
+            <button class="copy-btn" id="copyBtn" onclick="copyOutput()">
+                <span>📋</span> Copy to Clipboard
+            </button>
+        </div>
     </div>
 </div>
 
@@ -66,149 +628,369 @@ let current = "";
 
 function setVal(k, v, el) {
     state[k] = v;
-    if(el) {
-        let btns = el.parentElement.querySelectorAll('button');
-        btns.forEach(b => b.classList.remove('active'));
+    if (el) {
+        el.parentElement.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
+    }
+    // Auto-derive Strategic/Trusted from FDD answer
+    if (k === 'fdd') {
+        const tierVal = v === 'Y' ? 'Strategic' : 'Non strategic';
+        state['tier'] = tierVal;
+        const tierDisplay = document.getElementById('tierDisplay');
+        if (tierDisplay) {
+            tierDisplay.textContent = tierVal;
+            tierDisplay.style.color = v === 'Y' ? 'var(--accent)' : 'var(--text-dim)';
+        }
     }
 }
 
 function toggleMulti(key, val, el) {
     if (!state[key]) state[key] = [];
-    const index = state[key].indexOf(val);
-    if (index > -1) {
-        state[key].splice(index, 1);
-        el.classList.remove('active');
-    } else {
-        state[key].push(val);
-        el.classList.add('active');
-    }
+    const idx = state[key].indexOf(val);
+    if (idx > -1) { state[key].splice(idx, 1); el.classList.remove('active'); }
+    else { state[key].push(val); el.classList.add('active'); }
 }
 
 function clearMulti(key) {
     state[key] = [];
-    document.querySelectorAll('.multi-grid button').forEach(b => b.classList.remove('active'));
+    const container = document.querySelector(`[data-group="${key}"]`);
+    if (container) container.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
 }
 
-function load(type, el) {
-    current = type; state = {};
-    document.querySelectorAll('.navbar span').forEach(s => s.classList.remove('active-tab'));
-    if(el) el.classList.add('active-tab');
-    document.getElementById('genBtn').style.display = 'block';
-    document.getElementById('output').value = "";
+function clearOutput() {
+    document.getElementById('outputContent').value = '';
+    const b = document.getElementById('validationBanner');
+    if (b) b.remove();
+    updateStatus();
+}
 
-    const deltaOptions = [...Array.from({length:21},(_,i)=>`Delta ${i+1}`), 'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'];
-    const infoOptions = ['as per delta codes', 'no changes', 'RL changed', 'PKYC', 'FKYC', 'FSIV', 'New Registration'];
+function selectAll() {
+    const el = document.getElementById('outputContent');
+    el.focus();
+    el.select();
+}
+
+function updateStatus() {
+    const content = document.getElementById('outputContent');
+    const text = content.value || '';
+    const chars = text.trim().length;
+    document.getElementById('charCount').textContent = chars + ' chars';
+    document.getElementById('outputStatus').textContent = chars > 0 ? 'ready' : 'empty';
+    document.getElementById('outputStatus').style.color = chars > 0 ? 'var(--green)' : '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const oc = document.getElementById('outputContent');
+    oc.addEventListener('input', updateStatus);
+});
+
+function load(type, el) {
+    current = type;
+    state = {};
+
+    document.querySelectorAll('.nav-btn').forEach(s => s.classList.remove('active-tab'));
+    if (el && el.classList) el.classList.add('active-tab');
+    // fallback: match by text
+    if (!el || !el.classList.contains('active-tab')) {
+        document.querySelectorAll('.nav-btn').forEach(s => {
+            if (s.textContent.trim().toLowerCase() === type.toLowerCase()) s.classList.add('active-tab');
+        });
+    }
+
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('form').style.display = 'block';
+    document.getElementById('formFooter').style.display = 'block';
+    document.getElementById('outputContent').innerHTML = '';
+    const oldBanner = document.getElementById('validationBanner');
+    if (oldBanner) oldBanner.remove();
+    updateStatus();
+
+    const deltaOptions = [
+        ...Array.from({length: 21}, (_, i) => `Delta ${i + 1}`),
+        'no change', 'PKYC', 'FSIV', 'FKYC', 'New Registration'
+    ];
+    const infoOptions = [
+        'as per delta codes', 'no changes', 'RL changed',
+        'PKYC', 'FKYC', 'FSIV', 'New Registration'
+    ];
+
+    const field = (label, content, hint = '') => `
+        <div class="field">
+            <div class="field-label">${label}${hint ? `<span class="field-hint">${hint}</span>` : ''}</div>
+            ${content}
+        </div>`;
+
+    const selectField = (key, options, label, hint = '') => field(label,
+        `<select onchange="state['${key}']=this.value">
+            <option value=''>— select —</option>
+            ${options.map(o => `<option>${o}</option>`).join('')}
+        </select>`, hint);
+
+    const choiceField = (key, options, label, hint = '') => field(label,
+        `<div class="choice-row">${options.map(o => `<button class="chip" onclick="setVal('${key}','${o}',this)">${o}</button>`).join('')}</div>`, hint);
+
+    const textField = (key, label, ph = '', hint = '') => field(label,
+        `<input placeholder="${ph}" oninput="state['${key}']=this.value">`, hint);
+
+    const multiField = (key, opts, label) => field(label,
+        `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <button class="chip-clear" onclick="clearMulti('${key}')">✕ Clear</button>
+        </div>
+        <div class="multi-grid" data-group="${key}">
+            ${opts.map(o => `<button class="chip" onclick="toggleMulti('${key}','${o}',this)">${o}</button>`).join('')}
+        </div>`);
 
     const getCommons = (inclFDD = true) => {
-        let html = "";
-        if(inclFDD) html += `<div class='field'><label>Does FDD apply?:</label><div class='choice-row'><button onclick="setVal('fdd','Y',this)">Y</button><button onclick="setVal('fdd','N',this)">N</button></div></div>`;
-        html += `
-        <div class='field'><label>disb. status check:</label><select onchange="state['disb']=this.value"><option value=''>Select</option><option>allow</option><option>disallow by system</option><option>disallow by sim</option></select></div>
-        <div class='field'><label>Clover Flags (if applicable):</label><select onchange="state['clover']=this.value"><option value=''>Select</option><option>pass</option><option>No review needed</option><option>sign in from these countries</option></select></div>
-        <div class='field'><label>Potential LEC:</label><div class='choice-row'><button onclick="setVal('lec','yes',this)">yes</button><button onclick="setVal('lec','no',this)">no</button></div></div>
-        <div class='field'><label>Potential wrong entity:</label><div class='choice-row'><button onclick="setVal('wrong','yes',this)">yes</button><button onclick="setVal('wrong','no',this)">no</button></div></div>
-        <div class='field'><label>COC WF - Delta code <button class="clear-btn" onclick="clearMulti('delta')">Clear</button></label><div class='multi-grid'>${deltaOptions.map(o => `<button onclick="toggleMulti('delta','${o}',this)">${o}</button>`).join('')}</div></div>
-        <div class='field'><label>COC WF - what info changed:</label><div class='multi-grid'>${infoOptions.map(o => `<button onclick="toggleMulti('info','${o}',this)">${o}</button>`).join('')}</div></div>
-        <div class='field'><label>COC WF - bank account belongs to registered person or business ?</label><select onchange="state['bank']=this.value"><option value=''>Select</option><option>Person</option><option>Business</option><option>PKYC</option><option>FKYC</option><option>FSIV</option><option>New Registration</option></select></div>`;
+        let html = '';
+        if (inclFDD) html += choiceField('fdd', ['Y', 'N'], 'Does FDD Apply?');
+        html += selectField('disb', ['allow', 'disallow by system', 'disallow by sim'], 'Disb. Status Check');
+        html += selectField('clover', ['pass', 'No review needed', 'sign in from these countries'], 'Clover Flags', '(if applicable)');
+        html += choiceField('lec', ['yes', 'no'], 'Potential LEC');
+        html += choiceField('wrong', ['yes', 'no'], 'Potential Wrong Entity');
+        html += multiField('delta', deltaOptions, 'COC WF — Delta Code');
+        html += multiField('info', infoOptions, 'COC WF — What Info Changed');
+        html += selectField('bank', ['Person', 'Business', 'PKYC', 'FKYC', 'FSIV', 'New Registration'], 'COC WF — Bank Account Belongs To');
         return html;
     };
 
-    let f = `<div class="header-row"><h3>KYC - ${type.toUpperCase()}</h3><span class="reset-link" onclick="load('${type}')">RESET FORM</span></div>`;
+    const actionSection = (label = 'Final Action') => `
+        <hr class="divider">
+        <div class="action-section">
+            <div class="section-title">${label}</div>
+            <div class="choice-row" style="margin-bottom:10px;">
+                ${['Verify','RFD','Fail','Transfer','Escalate'].map(a =>
+                    `<button class="chip" onclick="setVal('action','${a}',this)">${a}</button>`
+                ).join('')}
+            </div>
+            <input placeholder="Enter details / notes..." oninput="state['action_details']=this.value" style="margin-top:4px;">
+        </div>`;
 
-    if(type === 'loa') {
-        f += getCommons(false) + `
-        <div class='field'><label>Legal representative verification (if no LRV task):</label><input oninput="state['lrv_check']=this.value"></div>
-        <div class='field'><label>LOA URN:</label><input oninput="state['loa_urn']=this.value"></div>
-        <div class='field'><label>LOA signatory registration status (APA accounts only):</label><input oninput="state['apa_status']=this.value"></div>`;
-    } else if(type === 'idv') {
-        f += getCommons(true) + `
-        <div class='field'><label>POC legal representative check(if no LRV task):</label><input oninput="state['poc']=this.value"></div>
-        <div class='field'><label>ID URN:</label><input oninput="state['id_urn']=this.value"></div>
-        <div class='field'><label>POA URN:</label><input oninput="state['poa_urn']=this.value"></div>
-        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>
-        <div class='field'><label>suspicious doc check (if found any):</label><input oninput="state['susp_check']=this.value"></div>`;
-    } else if(type === 'biv') {
-        f += getCommons(true) + `
-        <div class='field'><label>POC legal representative check(if no LRV task):</label><input oninput="state['poc']=this.value"></div>
-        <div class='field'><label>RE URN:</label><input oninput="state['re_urn']=this.value"></div>
-        <div class='field'><label>External Research URN (if needed):</label><input placeholder="NA" oninput="state['ext_urn']=this.value"></div>
-        <div class='field'><label>Current business status:</label><input placeholder="Active" oninput="state['biz_status']=this.value"></div>
-        <div class='field'><label>Is COI same as Country of Biz address?:</label><div class='choice-row'><button onclick="setVal('coi_match','Yes',this)">Yes</button><button onclick="setVal('coi_match','No',this)">No</button></div></div>
-        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
-    } else if(type === 'bov') {
-        f += getCommons(true) + `
-        <div class='field'><label>SA doc confirming ownership:</label><input oninput="state['sa_doc']=this.value"></div>
-        <div class='field'><label>All in scope BOs registered correctly:</label><div class='choice-row'><button onclick="setVal('bo_reg','Yes',this)">Yes</button><button onclick="setVal('bo_reg','No',this)">No</button></div></div>
-        <div class='field'><label>Is the provided SA recent?:</label><div class='choice-row'><button onclick="setVal('sa_recent','Yes',this)">Yes</button><button onclick="setVal('sa_recent','No',this)">No</button></div></div>
-        <div class='field'><label>Does SA information match with central registry/ext research?:</label><input oninput="state['sa_match']=this.value"></div>
-        <div class='field'><label>PC screening (if applicable):</label><input oninput="state['pc_screen']=this.value"></div>
-        <div class='field'><label>Name: match/no match/urn:</label><input oninput="state['name_match']=this.value"></div>
-        <div class='field'><label>Strategic or Trusted?:</label><div class='choice-row'><button onclick="setVal('tier','Strategic',this)">Strategic</button><button onclick="setVal('tier','Non strategic',this)">Non strategic</button></div></div>`;
-    } else if(type === 'bav ramp') {
-        f += `
-        <div class='field'><label>Account Overview:</label><select onchange="state['overview']=this.value"><option value=''>Select</option><option>Normal</option><option>Blocked</option></select></div>
-        <div class='field'><label>Potential LEC:</label><div class='choice-row'><button onclick="setVal('lec','yes',this)">yes</button><button onclick="setVal('lec','no',this)">no</button></div></div>
-        <div class='field'><label>Potential wrong entity:</label><div class='choice-row'><button onclick="setVal('wrong','yes',this)">yes</button><button onclick="setVal('wrong','no',this)">no</button></div></div>
-        <div class='field'><label>BS:</label><input oninput="state['bs']=this.value"></div>
-        <div class='field'><label>Is BS in name of BO (only for UK Seller):</label><div class='choice-row'><button onclick="setVal('uk_bo','Yes',this)">Yes</button><button onclick="setVal('uk_bo','No',this)">No</button></div></div>
-        <div class='field'><label>PSC/Companies SS/SA Urn:</label><input oninput="state['psc_urn']=this.value"></div>
-        <div class='field'><label>MO:</label><input oninput="state['mo']=this.value"></div>
-        <div class='field'><label>Is it a EU based seller with 3rd party payment provider?:</label><div class='choice-row'><button onclick="setVal('eu_provider','Y',this)">Y</button><button onclick="setVal('eu_provider','N',this)">N</button></div></div>
-        <div class='field'><label>If yes, are there any other red flags on the account?:</label><input oninput="state['red_flags']=this.value"></div>`;
-    } else if(type === 'lrv') {
-        f += getCommons(false) + `
-        <div class='field'><label>Legal representative verification status:</label><input oninput="state['lrv_status']=this.value"></div>
-        <div class='field'><label>LRV URN:</label><input oninput="state['lrv_urn']=this.value"></div>`;
+    let f = `<div class="form-header">
+        <div class="form-title">
+            <span class="module-badge">${type.toUpperCase()}</span>
+            <h3>Verification Form</h3>
+        </div>
+        <button class="reset-btn" onclick="load('${type}', null)">⟲ Reset</button>
+    </div>`;
+
+    if (type === 'loa') {
+        f += getCommons(false);
+        f += textField('lrv_check', 'Legal Representative Verification', '', '(if no LRV task)');
+        f += textField('loa_urn', 'LOA URN');
+        f += textField('apa_status', 'LOA Signatory Registration Status', '', '(APA accounts only)');
+
+    } else if (type === 'idv') {
+        f += getCommons(true);
+        f += textField('poc', 'POC Legal Representative Check', '', '(if no LRV task)');
+        f += textField('id_urn', 'ID URN');
+        f += textField('poa_urn', 'POA URN');
+        f += field('Strategic or Trusted?', `<div style="padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);font-size:13px;"><span id="tierDisplay" style="color:var(--text-muted);font-style:italic;">Auto-set from FDD answer above</span></div>`);
+        f += textField('susp_check', 'Suspicious Doc Check', '', '(if found any)');
+
+    } else if (type === 'biv') {
+        f += getCommons(true);
+        f += textField('poc', 'POC Legal Representative Check', '', '(if no LRV task)');
+        f += textField('re_urn', 'RE URN');
+        f += textField('ext_urn', 'External Research URN', 'NA', '(if needed)');
+        f += textField('biz_status', 'Current Business Status', 'Active');
+        f += choiceField('coi_match', ['Yes', 'No'], 'Is COI Same as Country of Biz Address?');
+        f += field('Strategic or Trusted?', `<div style="padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);font-size:13px;"><span id="tierDisplay" style="color:var(--text-muted);font-style:italic;">Auto-set from FDD answer above</span></div>`);
+
+    } else if (type === 'bov') {
+        f += getCommons(true);
+        f += textField('sa_doc', 'SA Doc Confirming Ownership');
+        f += choiceField('bo_reg', ['Yes', 'No'], 'All In-Scope BOs Registered Correctly');
+        f += choiceField('sa_recent', ['Yes', 'No'], 'Is the Provided SA Recent?');
+        f += textField('sa_match', 'Does SA Info Match Central Registry / Ext Research?');
+        f += textField('pc_screen', 'PC Screening', '', '(if applicable)');
+        f += textField('name_match', 'Name: Match / No Match / URN');
+        f += field('Strategic or Trusted?', `<div style="padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);font-size:13px;"><span id="tierDisplay" style="color:var(--text-muted);font-style:italic;">Auto-set from FDD answer above</span></div>`);
+
+    } else if (type === 'bav ramp') {
+        f += selectField('overview', ['Normal', 'Blocked'], 'Account Overview');
+        f += choiceField('lec', ['yes', 'no'], 'Potential LEC');
+        f += choiceField('wrong', ['yes', 'no'], 'Potential Wrong Entity');
+        f += textField('bs', 'BS');
+        f += choiceField('uk_bo', ['Yes', 'No'], 'Is BS in Name of BO', '(UK Sellers only)');
+        f += textField('psc_urn', 'PSC / Companies SS / SA URN');
+        f += textField('mo', 'MO');
+        f += choiceField('eu_provider', ['Y', 'N'], 'EU Based Seller with 3rd Party Payment Provider?');
+        f += textField('red_flags', 'If Yes — Any Other Red Flags?');
+
+    } else if (type === 'lrv') {
+        f += selectField('lrv_overview', ['Normal', 'Blocked'], 'Account Overview');
+        f += selectField('disb', ['allow', 'disallow by system', 'disallow by sim'], 'Disb. Status Check');
+        f += textField('signin', 'Sign-in', 'e.g. pass / sign in from these countries', '(remove if precheck: pass)');
+        f += field('LOA Signatory Validation', `
+            <div class="composite-block">
+                <div>
+                    <div class="sub-label">Signatory Name</div>
+                    <input placeholder="Enter signatory name" oninput="state['sig_name']=this.value">
+                </div>
+                <div>
+                    <div class="sub-label">External Research URN (uploaded in Alex)</div>
+                    <input placeholder="Enter URN link" oninput="state['sig_urn']=this.value">
+                </div>
+                <div>
+                    <div class="sub-label">Signatory Role / Job Title</div>
+                    <input placeholder="e.g. Director, CEO" oninput="state['sig_role']=this.value">
+                </div>
+                <div>
+                    <div class="sub-label">Document Type</div>
+                    <input placeholder="e.g. Articles of Association, Company Extract" oninput="state['sig_doctype']=this.value">
+                </div>
+                <div>
+                    <div class="sub-label">Document URN Link (found in Alex)</div>
+                    <input placeholder="Enter URN link" oninput="state['sig_doc_urn']=this.value">
+                </div>
+            </div>`);
+        f += choiceField('lec', ['yes', 'no'], 'Potential LEC');
+        f += choiceField('wrong', ['yes', 'no'], 'Potential Wrong Entity');
+        f += multiField('delta', deltaOptions, 'COC WF — Delta Code');
+        f += multiField('info', infoOptions, 'COC WF — What Info Changed');
+        f += selectField('bank', ['Person', 'Business', 'PKYC', 'FKYC', 'FSIV', 'New Registration'], 'COC WF — Bank Account Belongs To');
     }
 
-    f += `<div class="action-section"><label><strong>Final Action:</strong></label><div class='choice-row' style="margin-bottom:8px;"><button onclick="setVal('action','Verify',this)">Verify</button><button onclick="setVal('action','RFD',this)">RFD</button><button onclick="setVal('action','Fail',this)">Fail</button><button onclick="setVal('action','Transfer',this)">Transfer</button><button onclick="setVal('action','Escalate',this)">Escalate</button></div><input id="action_input" placeholder="Enter details..." oninput="state['action_details']=this.value"></div>`;
+    f += actionSection(type === 'lrv' ? 'Outcome' : 'Final Action');
     document.getElementById('form').innerHTML = f;
+    document.getElementById('formScroll').scrollTop = 0;
+}
+
+// Required fields per module — ALL fields must be filled.
+const REQUIRED = {
+    'loa':      ['disb','clover','lec','wrong','delta','info','bank','lrv_check','loa_urn','apa_status','action'],
+    'idv':      ['fdd','disb','clover','lec','wrong','delta','info','bank','poc','id_urn','poa_urn','tier','susp_check','action'],
+    'biv':      ['fdd','disb','clover','lec','wrong','delta','info','bank','poc','re_urn','ext_urn','biz_status','coi_match','tier','action'],
+    'bov':      ['fdd','disb','clover','lec','wrong','delta','info','bank','sa_doc','bo_reg','sa_recent','sa_match','pc_screen','name_match','tier','action'],
+    'bav ramp': ['overview','lec','wrong','bs','uk_bo','psc_urn','mo','eu_provider','red_flags','action'],
+    'lrv':      ['lrv_overview','disb','signin','sig_name','sig_urn','sig_role','sig_doctype','sig_doc_urn','lec','wrong','delta','info','bank','action']
+};
+
+// Human-readable labels for error messages
+const FIELD_LABELS = {
+    fdd:'Does FDD Apply', disb:'Disb. Status Check', clover:'Clover Flags',
+    lec:'Potential LEC', wrong:'Potential Wrong Entity',
+    delta:'COC WF – Delta Code', info:'COC WF – What Info Changed', bank:'COC WF – Bank Account Belongs To',
+    lrv_check:'Legal Representative Verification', loa_urn:'LOA URN', apa_status:'LOA Signatory Registration Status',
+    poc:'POC Legal Representative Check', id_urn:'ID URN', poa_urn:'POA URN',
+    tier:'Strategic or Trusted', susp_check:'Suspicious Doc Check',
+    re_urn:'RE URN', ext_urn:'External Research URN', biz_status:'Current Business Status', coi_match:'Is COI Same as Country of Biz Address',
+    sa_doc:'SA Doc Confirming Ownership', bo_reg:'All In-Scope BOs Registered Correctly',
+    sa_recent:'Is the Provided SA Recent', sa_match:'Does SA Info Match Central Registry',
+    pc_screen:'PC Screening', name_match:'Name Match / URN',
+    overview:'Account Overview', bs:'BS', uk_bo:'Is BS in Name of BO',
+    psc_urn:'PSC / Companies SS / SA URN', mo:'MO', eu_provider:'EU Based Seller with 3rd Party Provider', red_flags:'Any Other Red Flags',
+    lrv_overview:'Account Overview', signin:'Sign-in',
+    sig_name:'Signatory Name', sig_urn:'External Research URN', sig_role:'Signatory Role',
+    sig_doctype:'Document Type', sig_doc_urn:'Document URN Link',
+    action:'Final Action / Outcome'
+};
+
+function isFilled(key) {
+    const v = state[key];
+    if (Array.isArray(v)) return v.length > 0;
+    return v !== undefined && v !== null && String(v).trim() !== '';
+}
+
+function validate() {
+    const required = REQUIRED[current] || [];
+    const missing = required.filter(k => !isFilled(k));
+
+    // Clear previous error highlights
+    document.querySelectorAll('.field.error').forEach(el => el.classList.remove('error'));
+
+    if (missing.length === 0) return true;
+
+    // Show inline error banner
+    const existing = document.getElementById('validationBanner');
+    if (existing) existing.remove();
+
+    const names = missing.map(k => FIELD_LABELS[k] || k);
+    const banner = document.createElement('div');
+    banner.id = 'validationBanner';
+    banner.style.cssText = `
+        background: rgba(255,79,106,0.1);
+        border: 1px solid rgba(255,79,106,0.35);
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        color: var(--red);
+        line-height: 1.7;
+    `;
+    banner.innerHTML = `<strong style="display:block;margin-bottom:4px;font-size:11px;letter-spacing:0.5px;text-transform:uppercase;">⚠ ${missing.length} field${missing.length > 1 ? 's' : ''} required</strong>${names.map(n => `• ${n}`).join('<br>')}`;
+
+    const formEl = document.getElementById('form');
+    formEl.insertBefore(banner, formEl.firstChild.nextSibling); // after header
+    document.getElementById('formScroll').scrollTop = 0;
+
+    return false;
 }
 
 function generate() {
+    // Remove old banner if exists
+    const oldBanner = document.getElementById('validationBanner');
+    if (oldBanner) oldBanner.remove();
+
+    if (!validate()) return;
+
     let deltaStr = (state.delta || []).join(', ');
     let infoStr = (state.info || []).join(', ');
     let actionFinal = (state.action || '') + (state.action_details ? ' - ' + state.action_details : '');
-    let o = "";
+    let o = '';
 
-    if(current === 'loa') {
-        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN: ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
-    } else if(current === 'idv') {
-        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
-    } else if(current === 'biv') {
-        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
-    } else if(current === 'bov') {
-        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}</strong><br>\n<strong>Action: ${actionFinal}</strong>`;
-    } else if(current === 'bav ramp') {
-        o = `<strong> KYC LR- BAV RAMP </strong><br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller): ${state.uk_bo || ''}<br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?: ${state.eu_provider || ''}<br>\nIf yes, are there any other red flags on the account?: ${state.red_flags || ''}<br>\n<strong> Action: ${actionFinal}</strong>`;
-    } else if(current === 'lrv') {
-        o = `<strong>KYC LR- LRV </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification status: ${state.lrv_status || ''}<br>\nLRV URN: ${state.lrv_urn || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+    if (current === 'loa') {
+        o = `<strong>KYC LR- LOA </strong><br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}            [Remove if precheck: pass]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nLegal representative verification (if no LRV task): ${state.lrv_check || ''}<br>\nLOA URN ${state.loa_urn || ''}<br>\nLOA signatory registration status (APA accounts only): ${state.apa_status || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
+    } else if (current === 'idv') {
+        o = `<strong>KYC LR- IDV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}           [Remove if precheck: pass]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nID URN: ${state.id_urn || ''}<br>\nPOA URN: ${state.poa_urn || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}<br>\nsuspicious doc check (if found any): ${state.susp_check || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
+    } else if (current === 'biv') {
+        o = `<strong>KYC LR- BIV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}           [Remove if precheck: pass]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nPOC legal representative check(if no LRV task): ${state.poc || ''}<br>\nRE URN: ${state.re_urn || ''}<br>\nExternal Research URN (if needed): ${state.ext_urn || ''}<br>\nCurrent business status: ${state.biz_status || ''}<br>\nIs COI same as Country of Biz address?: ${state.coi_match || ''}<br>\n<strong>Strategic or Trusted?: ${state.tier || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
+    } else if (current === 'bov') {
+        o = `<strong>KYC LR- BOV</strong><br>\nDoes FDD apply?: ${state.fdd || ''}<br>\ndisb. status check: ${state.disb || ''}<br>\nClover Flags (if applicable): ${state.clover || ''}           [Remove if precheck: pass]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\nSA doc confirming ownership: ${state.sa_doc || ''}<br>\nAll in scope BOs registered correctly: ${state.bo_reg || ''}<br>\nIs the provided SA recent?: ${state.sa_recent || ''}<br>\nDoes SA information match with central registry/ext research?: ${state.sa_match || ''}<br>\n<strong> PC screening (if applicable): ${state.pc_screen || ''}<br>\nName: match/no match/urn: ${state.name_match || ''}<br>\n<strong>Strategic or Trusted? ${state.tier || ''}<br>\n<strong>Action: ${actionFinal}</strong>`;
+
+    } else if (current === 'bav ramp') {
+        o = `<strong> KYC LR- BAV RAMP </strong> <br>\nAccount Overview: ${state.overview || ''}<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nBS: ${state.bs || ''}<br>\nIs BS in name of BO (only for UK Seller):  ${state.uk_bo === 'Yes' ? 'Yes' : ''}  /  ${state.uk_bo === 'No' ? 'No' : ''} <br>\nPSC/Companies SS/SA Urn: ${state.psc_urn || ''}<br>\nMO: ${state.mo || ''}<br>\nIs it a EU based seller with 3rd party payment provider?   ${state.eu_provider || ''}       [Remove if precheck: pass]<br>\nIf yes, are there any other red flags on the account? ${state.red_flags || ''}      [Remove if precheck: pass]<br>\n<strong> Action: ${actionFinal}</strong>`;
+
+    } else if (current === 'lrv') {
+        const sigName = state.sig_name || '';
+        const sigUrn = state.sig_urn || '';
+        const sigRole = state.sig_role || '';
+        const sigDocType = state.sig_doctype || '';
+        const sigDocUrn = state.sig_doc_urn || '';
+        o = `<strong>KYC LR- LRV</strong><br>\nAccount Overview: ${state.lrv_overview || ''}<br>\nDisb. status check: ${state.disb || ''}<br>\nSign-in: ${state.signin || ''}<br>\nLOA signatory [${sigName}] validated as a legal representative of the business via external research [${sigUrn} URN link uploaded in Alex]. The signatory is [${sigRole}] >> [${sigDocType}] found in Alex: [${sigDocUrn}]<br>\nPotential LEC: ${state.lec || ''}<br>\nPotential wrong entity: ${state.wrong || ''}<br>\nCOC WF - Delta code: ${deltaStr}<br>\nCOC WF - what info changed: ${infoStr}<br>\nCOC WF - bank account belongs to registered person or business ? ${state.bank || ''}<br>\n<strong>Outcome: ${actionFinal}</strong>`;
     }
-    
-    document.getElementById('output').value = o;
+
+    document.getElementById('outputContent').value = o;
+    updateStatus();
+
+    const btn = document.getElementById('genBtn');
+    btn.classList.remove('flash');
+    void btn.offsetWidth;
+    btn.classList.add('flash');
 }
 
-async function copy() {
-    const output = document.getElementById('output').value;
-    // Replace all <br>\n or just <br> with a real newline \n
-    // Then strip out all remaining HTML tags like <strong>
-    const cleanText = output.replace(/<br\s*\/?>/gi, '\n')
-                            .replace(/<\/?[^>]+(>|$)/g, "");
-    
+async function copyOutput() {
+    const el = document.getElementById('outputContent');
+    const text = el.value;
+    if (!text.trim()) { alert('Nothing to copy. Generate a note first.'); return; }
     try {
-        await navigator.clipboard.writeText(cleanText);
-        const btn = document.getElementById('copyBtn'); 
-        btn.innerText = "✓ Copied Successfully!";
-        btn.style.background = "#28a745";
+        await navigator.clipboard.writeText(text);
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('success');
+        btn.innerHTML = '<span>✓</span> Copied!';
         setTimeout(() => {
-            btn.innerText = "Copy to Clipboard";
-            btn.style.background = "#6c2bd9";
+            btn.classList.remove('success');
+            btn.innerHTML = '<span>📋</span> Copy to Clipboard';
         }, 2000);
-    } catch (err) {
-        alert("Unable to copy. Please select the text and copy manually.");
+    } catch (e) {
+        alert('Unable to copy automatically. Please select text and copy manually.');
     }
 }
+
+
 </script>
 </body>
 </html>
